@@ -3,7 +3,7 @@ from django.contrib import admin
 # from django.contrib.auth.admin import UserAdmin
 
 # from .forms import MyUserCreationForm, MyUserChangeForm
-from .models import User,Issue
+from .models import User_Types,Issue
 
 # class MyUserAdmin(UserAdmin):
 #     add_form = MyUserCreationForm
@@ -15,5 +15,5 @@ from .models import User,Issue
 #     ) #this will allow to change these fields in admin module
 
 
-admin.site.register(User)
+admin.site.register(User_Types)
 admin.site.register(Issue)

@@ -50,10 +50,10 @@ INSTALLED_APPS = [
     'crispy_forms',
     'rest_framework',
     'rest_framework.authtoken',
+    'django_extensions',
     'django_filters'
 ]
-AUTH_USER_MODEL = ('IssueTracker.User')
-
+# AUTH_USER_MODEL = ('IssueTracker.User_Types')
 # REST_FRAMEWORK = {
 #    'DEFAULT_PERMISSION_CLASSES': (
 #        'rest_framework.permissions.IsAuthenticated',

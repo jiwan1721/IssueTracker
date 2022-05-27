@@ -1,6 +1,6 @@
 from django.shortcuts import render
-from . serializers import IssueSerializers
-from . models import Issue,User
+from . serializers import IssueSerializers, UserIssueSerializers
+from . models import Issue,User_Types
 # Create your views here.
 from django.http import HttpResponse
 def index(request):
@@ -19,14 +19,19 @@ from . serializers import UserSeralizer
 
 
 # @APIView(['GET'])
-class IssueView(generics.CreateAPIView):
+class IssueView(generics.CreateAPIView,
+                generics.ListAPIView):
     queryset = Issue.objects.all()
     serializer_class = IssueSerializers
     filter_backends = [filters.SearchFilter]
     search_fields = ['Reporting_person']
 
-class UserView(generics.ListAPIView):
-    queryset = User.objects.all()
+class UserView(generics.ListAPIView,
+               generics.CreateAPIView):
+    queryset = User_Types.objects.all()
     serializer_class = UserSeralizer
     
-# s
+class UserIssueView(generics.ListAPIView,
+                    generics.CreateAPIView):
+    queryset = User_Types.objects.all()
+    serializer_class = UserIssueSerializers
