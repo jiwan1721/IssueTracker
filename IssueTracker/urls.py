@@ -3,7 +3,7 @@ from django.urls import path,include
 from IssueTracker.serializers import UserIssueSerializers
 
 from . import views
-from . views import IssueView,UserView,UserIssueView
+from . views import IssueView,UserView,UserIssueView,serializerIssue
 from rest_framework.routers import DefaultRouter
 
 router = DefaultRouter()
@@ -19,5 +19,6 @@ urlpatterns = [
     path('user/',UserView.as_view(),name = 'userView'),
     # path('uc/',userCreation.as_view(),name = 'uc')
     path('userIssue',UserIssueView.as_view(),name="userIssue"),
+    path('user/<int:pk>/',serializerIssue,name = 'funcUser')
 
 ]

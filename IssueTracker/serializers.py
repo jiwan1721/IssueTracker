@@ -11,15 +11,17 @@ class IssueSerializers(serializers.ModelSerializer):
     class Meta:
         model = Issue
         fields = ['status_code','module','priority','company_name','description']
+    
+    
 
-    def create(self, validated_data):
-        instance = Issue.objects.create(user=self.context['request'].user, **validated_data)
-        return instance
+    # def create(self, validated_data):
+    #     instance = Issue.objects.create(user=self.context['request'].user, **validated_data)
+    #     return instance
 
-    def update(self, instance, validated_data):
-        x =super().update(instance, validated_data)
-        # import ipdb;ipdb.set_trace()
-        return x
+    # def update(self, instance, validated_data):
+    #     x =super().update(instance, validated_data)
+    #     # import ipdb;ipdb.set_trace()
+    #     return x
 
 
 class UserSeralizer(serializers.ModelSerializer):
@@ -31,7 +33,7 @@ class UserSeralizer(serializers.ModelSerializer):
 class UserIssueSerializers(serializers.ModelSerializer):
 
     # usermodel is related name of foreignkey
-    issues = IssueSerializers(many = True)
+    usermodel = IssueSerializers(many = True)
     class Meta:
         model = User_Types
         fields = '__all__'
