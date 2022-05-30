@@ -53,7 +53,7 @@ INSTALLED_APPS = [
     'django_extensions',
     'django_filters'
 ]
-# AUTH_USER_MODEL = ('IssueTracker.User_Types')
+AUTH_USER_MODEL = 'IssueTracker.User'
 # REST_FRAMEWORK = {
 #    'DEFAULT_PERMISSION_CLASSES': (
 #        'rest_framework.permissions.IsAuthenticated',
@@ -64,7 +64,11 @@ INSTALLED_APPS = [
 #    ),
 
 REST_FRAMEWORK = {
-    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    ]
 }
 
 MIDDLEWARE = [

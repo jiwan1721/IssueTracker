@@ -1,9 +1,13 @@
 from django.contrib import admin
+
+from IssueTracker.views import User
 # from django.contrib.auth import get_user_model
 # from django.contrib.auth.admin import UserAdmin
 
 # from .forms import MyUserCreationForm, MyUserChangeForm
-from .models import User_Types,Issue
+from .models import Issue
+# from .models import Issue
+
 
 # class MyUserAdmin(UserAdmin):
 #     add_form = MyUserCreationForm
@@ -14,6 +18,5 @@ from .models import User_Types,Issue
 #             (None, {'fields': ('mobile_number', 'birth_date')}),
 #     ) #this will allow to change these fields in admin module
 
-
-admin.site.register(User_Types)
+admin.site.register(User)
 admin.site.register(Issue)

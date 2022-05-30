@@ -1,3 +1,4 @@
+from statistics import mode
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
@@ -12,7 +13,7 @@ class BaseModel(models.Model):
     class Meta:
         abstract = True
     
-class User_Types(BaseModel):
+class User(AbstractUser):
     USER_LEVEL = (
         ('L0','normal user'),
         ('L1','Level one'),
@@ -30,7 +31,8 @@ class User_Types(BaseModel):
     # REQUIRED_FIELDS = ['name']
 
     def __str__(self):
-        return "user  name = %s,Company name = %s"%(self.name,self.company)
+        return self.name
+        # return "user  name = %s,Company name = %s"%(self.name,self.company)
     
 
 
@@ -61,14 +63,20 @@ class Issue(BaseModel):
         ('502','502'),
         ('other','Other'),
     )
-
-    user = models.ForeignKey(User_Types,related_name = 'usermodel',on_delete = models.CASCADE,null = True)
+    LEVEL = (
+        ('L0','normal user'),
+        ('L1','Level one'),
+        ('L2','Level two'),
+        ('L3','Level three'),
+    )
+    level = models.CharField(max_length=20,choices=LEVEL,default='L0')
+    user = models.ForeignKey(User,related_name = 'issues',on_delete = models.CASCADE)
     # recipent = models.ForeignKey(User_Types,related_name='userlevel',on_delete=models.CASCADE,null=True)
     status_code = models.CharField(choices=STATUS_CODE,max_length=30,default='other')
     module = models.CharField(choices = MODULE,max_length =30,default='other')
-    priority = models.CharField(choices = PRIORITY,max_length=30)
-    company_name = models.CharField(max_length=100)
-    description = models.TextField()
+    priority = models.CharField(choices = PRIORITY,max_length=30,default='low')
+    company_name = models.CharField(max_length=100,blank=True)
+    description = models.TextField(blank=True)
     status = models.CharField(choices=STATUS,max_length=20,default='pending')
     
     class Meta:
@@ -81,8 +89,7 @@ class Issue(BaseModel):
 
 
     def __str__(self):
-
-        return "user name:  %s, Issue priority:  %s, status code:  %s, " % (self.reporting_person,self.status,self.status_code)
+        return " Issue priority:  %s, status code:  %s, " % (self.status,self.status_code)
 
 
         # return self.reporting_person+self.status
