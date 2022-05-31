@@ -9,6 +9,7 @@ from rest_framework.routers import DefaultRouter
 router = DefaultRouter()
 router.register(r'user',views.UserView,basename='user')
 router.register(r'issues',views.IssueView,basename='issues')
+router.register(r'adminuser',views.AdminViewSet,basename='for admin only')
 
 
 urlpatterns = [

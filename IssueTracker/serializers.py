@@ -1,34 +1,29 @@
-from dataclasses import fields
-from pyexpat import model
-from sys import settrace
+
 from rest_framework import serializers
-from django.contrib.auth.models import User
+from . models import LEVEL, User,Issue
 
-
-# from django.contrib.auth import get_user_model
-# User = get_user_model()
-
-
-# from . models import Issue
-from . models import User,Issue
-# from . forms import MyUserCreationForm,MyUserChangeForm
 
 class IssueSerializers(serializers.ModelSerializer):
 
     class Meta:
         model = Issue
-        fields = ['user','status_code','module','priority','company_name','description', ]
+        fields = ['recipent','id','level','status_code','module','priority','company_name','description','status']
     
         read_only_fields = ('is_active','is_staff')
+    
+    # def create(self, validated_data):
+    #     x = super().create(validated_data)
+    #     if x.level == 0:
+    #         # level = x.level
+    #         # level_issue= level+1
+    #         # import ipdb;ipdb.set_trace()
+    #         instance = Issue.objects.create(**validated_data)
+    #         instance.save(level=validated_data[x.level+1])
+    #         return instance
+    #     else:
+    #         return x
 
-    def create(self, validated_data):
-        instance = Issue.objects.create(**validated_data)  # user=self.context['request'].user, 
-        return instance
 
-    def update(self, instance, validated_data):
-        x =super().update(instance, validated_data)
-        # import ipdb;ipdb.set_trace()
-        return x
 
 
 class UserSeralizer(serializers.ModelSerializer):
@@ -65,7 +60,14 @@ class UserIssueSerializers(serializers.ModelSerializer):
 
 
 
+# def create(self, validated_data):
+#     instance = Issue.objects.create(**validata) ed_dat # user=self.context['request'].user, 
+#     return instance
 
+# def update(self, instance, validated_data):
+#     x =super().update(instance, validated_data)
+#     # import ipdb;ipdb.set_trace()
+#     return x
 
 
 # class UserIssueSerializers(serializers.ModelSerializer):

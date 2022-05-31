@@ -4,7 +4,12 @@ from django.contrib.auth.models import AbstractUser
 
 
 
-
+LEVEL = (
+    (0,'level zero'),
+    (1,'Level one'),
+    (2,'Level two'),
+    (3,'Level three'),
+)
 
 class BaseModel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
@@ -14,19 +19,11 @@ class BaseModel(models.Model):
         abstract = True
     
 class User(AbstractUser):
-    USER_LEVEL = (
-        ('L0','normal user'),
-        ('L1','Level one'),
-        ('L2','Level two'),
-        ('L3','Level three'),
-    )
-
-
     name = models.CharField(max_length=100)
     email = models.EmailField(max_length=20,unique=True)
     company = models.CharField(max_length=120)
     mobile_number = models.CharField(max_length=10, unique=True)
-    user_level = models.CharField(choices=USER_LEVEL,max_length=20)
+    level = models.CharField(choices=LEVEL,max_length=20)
     # USERNAME_FIELD = 'email'
     # REQUIRED_FIELDS = ['name']
 
@@ -63,15 +60,9 @@ class Issue(BaseModel):
         ('502','502'),
         ('other','Other'),
     )
-    LEVEL = (
-        ('L0','normal user'),
-        ('L1','Level one'),
-        ('L2','Level two'),
-        ('L3','Level three'),
-    )
+
     level = models.CharField(max_length=20,choices=LEVEL,default='L0')
-    user = models.ForeignKey(User,related_name = 'issues',on_delete = models.CASCADE)
-    # recipent = models.ForeignKey(User_Types,related_name='userlevel',on_delete=models.CASCADE,null=True)
+    recipent = models.ForeignKey(User,related_name = 'issues',on_delete = models.CASCADE)
     status_code = models.CharField(choices=STATUS_CODE,max_length=30,default='other')
     module = models.CharField(choices = MODULE,max_length =30,default='other')
     priority = models.CharField(choices = PRIORITY,max_length=30,default='low')
@@ -86,13 +77,9 @@ class Issue(BaseModel):
             ('forward_issue','user can forwad isuue to senior level'),
             ('solve_Issue','can solve Issue'),
         )
-
-
     def __str__(self):
         return " Issue priority:  %s, status code:  %s, " % (self.status,self.status_code)
 
-
-        # return self.reporting_person+self.status
 
 
 
