@@ -1,4 +1,5 @@
 from sys import settrace
+from turtle import forward
 from django.shortcuts import render
 from .serializers import IssueSerializers, UserIssueSerializers
 from .models import Issue
@@ -45,6 +46,26 @@ class IssueView(viewsets.ModelViewSet):
         return Response(serializer)
 
 
+    @action(detail=True, methods=['GET','PUT'])
+    def forward_issue(self,request, pk=None):
+        """
+        Params : level
+        """
+        level = request.GET.get('level', None) # for get request 
+        # level = request.data.get()
+
+        print('===================',level)
+
+        if pk and level:
+
+            issue_obj= Issue.objects.get(pk=pk )
+            issue_obj.level = level
+            issue_obj.save()
+            return Response({"message":"Done"})
+
+        print('Nooo')
+
+
 
 
 class UserView(viewsets.ModelViewSet):
@@ -53,7 +74,7 @@ class UserView(viewsets.ModelViewSet):
     serializer_class = UserSeralizer
 
     @action(detail=False, methods=['GET'])
-    def assigned(self,request):
+    def assigned(self,request,pk):
         # queryset = User.objects.all()
         
         issueid = Issue.objects.all()
@@ -65,6 +86,21 @@ class UserView(viewsets.ModelViewSet):
         serializer = IssueSerializers(user_data,many=True)
         
         return Response(serializer.data)
+    @action(detail=True, methods=['GET','PUT'])
+    def forward_issue(self,request, pk=None):
+        issue_id = request.GET.get('issue', None)
+        print('===================',request.GET)
+
+        if pk and issue_id:
+
+            user= User.objects.get(pk=pk )
+            issue_obj = Issue.objects.get(id=issue_id)
+            issue_obj.level = user.user_level
+            issue_obj.save()
+            return Response({"message":"Done"})
+
+        print('Nooo')
+
 
 
     

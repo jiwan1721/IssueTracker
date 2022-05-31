@@ -17,7 +17,7 @@ class IssueSerializers(serializers.ModelSerializer):
 
     class Meta:
         model = Issue
-        fields = ['user','status_code','module','priority','company_name','description']
+        fields = ['user','status_code','module','priority','company_name','description', ]
     
         read_only_fields = ('is_active','is_staff')
 
