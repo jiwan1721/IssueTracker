@@ -23,7 +23,7 @@ class User(AbstractUser):
     email = models.EmailField(max_length=20,unique=True)
     company = models.CharField(max_length=120)
     mobile_number = models.CharField(max_length=10, unique=True)
-    level = models.CharField(choices=LEVEL,max_length=20)
+    level = models.CharField(choices=LEVEL,max_length=20,default=0)
     # USERNAME_FIELD = 'email'
     # REQUIRED_FIELDS = ['name']
 
@@ -42,7 +42,6 @@ class Issue(BaseModel):
     STATUS = (
         ('pending','Pending'),
         ('solved','Solved'),
-        ('forward','forward'),
     )
     MODULE = (
         ('attendence','Attendence'),
@@ -61,8 +60,8 @@ class Issue(BaseModel):
         ('other','Other'),
     )
 
-    level = models.CharField(max_length=20,choices=LEVEL,default='L0')
-    recipent = models.ForeignKey(User,related_name = 'issues',on_delete = models.CASCADE)
+    level = models.CharField(max_length=20,choices=LEVEL,default=1)
+    # recipent = models.ForeignKey(User,related_name = 'issues',on_delete = models.CASCADE)
     status_code = models.CharField(choices=STATUS_CODE,max_length=30,default='other')
     module = models.CharField(choices = MODULE,max_length =30,default='other')
     priority = models.CharField(choices = PRIORITY,max_length=30,default='low')

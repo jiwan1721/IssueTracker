@@ -1,4 +1,7 @@
 
+from email import message
+import imp
+from urllib import request
 from .serializers import IssueSerializers, UserIssueSerializers
 from .models import Issue
 
@@ -8,6 +11,7 @@ from rest_framework import viewsets
 from . serializers import UserSeralizer
 from rest_framework.decorators import action
 from rest_framework import mixins
+from rest_framework.response import Response
 
 #to check user is authenticated or not
 from rest_framework.permissions import IsAuthenticated,IsAdminUser
@@ -15,24 +19,29 @@ class IssueView(viewsets.ModelViewSet,mixins.CreateModelMixin):
     queryset = Issue.objects.all()
     serializer_class = IssueSerializers
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]or[IsAdminUser]
     def get_queryset(self):
         qs = super().get_queryset()
         qs = qs.filter(level=self.request.user.level)
+        if self.request.user.level=='0':
+            raise self.permission_denied(self.request,message='yo do not have permission to do this action')
         return qs
+        
 
 
+from rest_framework.renderers import JSONRenderer,BrowsableAPIRenderer
 
-class UserView(mixins.ListModelMixin,
-            mixins.UpdateModelMixin,
-            viewsets.GenericViewSet):
+class UserView(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSeralizer
-    permission_classes = [IsAuthenticated]
-
+    permission_classes = [IsAuthenticated]or[IsAdminUser]
+    def create(self, request, *args, **kwargs):
+        if self.request.user:
+            raise self.permission_denied(request,message="you do not have permission to do this task")
+        return super().create(request, *args, **kwargs)
     def get_queryset(self):
         return super().get_queryset().filter(id=self.request.user.id)
-    
+        # raise self.permission_denied(self.request,message='You do not have permission to do this action')   
     def update(self, request, *args, **kwargs):
         return super().update(request, *args, **kwargs)
 
@@ -42,8 +51,28 @@ class AdminViewSet(viewsets.ModelViewSet):
     serializer_class= UserSeralizer
     permission_classes = [IsAdminUser]
 
+from django.db.models import Q
+class UserZero(viewsets.ModelViewSet):
+    queryset = Issue.objects.all()
+    serializer_class=IssueSerializers
+    permission_classes = [IsAuthenticated]or[IsAdminUser]
+    def get_queryset(self): 
+        qs =super().get_queryset().filter(id = self.request.user.id)
+        if self.request.user.level == '0':
+            return qs
+        raise self.permission_denied(self.request,message='You do not have permission to do this action')
+    def create(self, request, *args, **kwargs):
+        if self.request.user.level!='0':
+            raise self.permission_denied(request,message="do not have permission")
+        return super().create(request, *args, **kwargs)
+  
+
+from rest_framework.decorators import renderer_classes
+from rest_framework.decorators import api_view
 
 
+
+        
 
 class UserIssueView(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -53,66 +82,49 @@ class UserIssueView(viewsets.ModelViewSet):
 
 
 
-# class AssignedIssue(viewsets.ModelViewSet):
-#     user_id = User.objects.all()
-#     queryset = Issue.objects.filter(recipent=user_id.id)
-#     serializer_class = IssueSerializers(queryset,many =True)
-#     # serializer = self.get_serializer(queryset,many = True)  
-#     # return Response(serializer.data)
 
-#     @action(detail=False,methods=['GET','PUT'])
-#     def assigned(self,request,pk=None):
-        
-#         user_id = request.user
-#         queryset = Issue.objects.filter(recipent=user_id.id)
-#         assigned_issue = Issue.objects.filter(recipent=user_id.id)
-#         print("------->",assigned_issue)
-#         serializer = self.get_serializer(assigned_issue,many = True)  
-#         return Response(serializer.data)
 
-from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.renderers import JSONRenderer,BrowsableAPIRenderer
-from rest_framework.decorators import renderer_classes
 
 
-@api_view(['GET', 'POST', 'DELETE','UPDATE'])
-@renderer_classes([JSONRenderer,BrowsableAPIRenderer])
-def serializerIssue(request, pk):
-    try:
-        user_data = User.objects.get(pk=pk)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# @api_view(['GET', 'POST', 'DELETE','UPDATE'])
+# @renderer_classes([JSONRenderer,BrowsableAPIRenderer])
+# def serializerIssue(request, pk):
+#     try:
+#         user_data = User.objects.get(pk=pk)
         
-    except User.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-    issuedata= Issue.objects.all()
+#     except User.DoesNotExist:
+#         return Response(status=status.HTTP_404_NOT_FOUND)
+#     issuedata= Issue.objects.all()
 
-    if request.method == 'GET':
-        serializer = UserSeralizer(user_data)
-        return Response(serializer.data)
+#     if request.method == 'GET':
+#         serializer = UserSeralizer(user_data)
+#         return Response(serializer.data)
     
-    elif request.method == 'POST':
-        serializer = UserIssueSerializers(data=request.data,pk = pk)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+#     elif request.method == 'POST':
+#         serializer = UserIssueSerializers(data=request.data,pk = pk)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 
@@ -161,3 +173,21 @@ def serializerIssue(request, pk):
     #     print("------->",assigned_issue)
     #     serializer = self.get_serializer(assigned_issue,many = True)  
     #     return Response(serializer.data)
+
+
+# class AssignedIssue(viewsets.ModelViewSet):
+#     user_id = User.objects.all()
+#     queryset = Issue.objects.filter(recipent=user_id.id)
+#     serializer_class = IssueSerializers(queryset,many =True)
+#     # serializer = self.get_serializer(queryset,many = True)  
+#     # return Response(serializer.data)
+
+#     @action(detail=False,methods=['GET','PUT'])
+#     def assigned(self,request,pk=None):
+        
+#         user_id = request.user
+#         queryset = Issue.objects.filter(recipent=user_id.id)
+#         assigned_issue = Issue.objects.filter(recipent=user_id.id)
+#         print("------->",assigned_issue)
+#         serializer = self.get_serializer(assigned_issue,many = True)  
+#         return Response(serializer.data)
