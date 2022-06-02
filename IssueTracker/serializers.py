@@ -1,11 +1,16 @@
-
+from urllib import request
 from rest_framework import serializers
 from traitlets import default
 from . models import LEVEL, User,Issue
+from rest_framework.permissions import IsAuthenticated,IsAdminUser
+
+class UserSeralizer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = '__all__'
 
 
 class IssueSerializers(serializers.ModelSerializer):
-    # level=serializers.ChoiceField(choices=LEVEL,default='1')
 
     class Meta:
         model = Issue
@@ -15,43 +20,31 @@ class IssueSerializers(serializers.ModelSerializer):
 
     def create(self, validated_data):
         validated_data['level']='1'
-        # validated_data['recipent']=self.name
+        validated_data['status']='pending'
+        validated_data['user_id']= self.context['user']
+            
         return super().create(validated_data)
     def update(self, instance, validated_data):
-        # import ipdb;ipdb.set_trace()
-
-        #     instance.level = '0'
-        #     instance.status = 'solved'
-           
-        #     instance.save()
-
-        instance.status_code = validated_data.get('Status_code',instance.status_code)
-        instance.module = validated_data.get('Module',instance.module)
-        instance.priority = validated_data.get('Priority',instance.priority)
-        instance.company_name = validated_data.get('compay name',instance.company_name)
-        instance.description = validated_data.get('description',instance.description)
-        instance.status = validated_data.get('status',instance.status)
-        instance.level = validated_data.get('level',instance.level)
         
-        instance.level= validated_data.get('level',instance.level)
-        instance.save()
+        status = validated_data['status']
+        validated_data['level']='0'
+        level=validated_data['level']
+        if status == "solved":
+            level='0'
+        if status=='forward':
+            if level=='3':
+                raise serializers.ValidationError('level 3 can not forward')
+            elif level=='0':
+                raise serializers.ValidationError('you do not have permission to do this action')
+            status='pending'
+            level=f'{int(level)+1}' if level <= '3' else level
+        return super().update(instance, validated_data)
 
-  
-        return instance
-
-
-class UserSeralizer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        # fields = ['username','first_name','last_name','company','mobile_number']
-        fields = '__all__'
-    # def update(self, instance, validated_data):
-    #     return super().update(instance, validated_data)
 
 
 class UserIssueSerializers(serializers.ModelSerializer):
 
-    # usermodel is related name of foreignkey
+    ''' usermodel is related name of foreignkey'''
     issues = IssueSerializers(many = True)
     class Meta:
         model = User
@@ -73,6 +66,18 @@ class UserIssueSerializers(serializers.ModelSerializer):
 
 
 
+
+
+
+        # instance.status_code = validated_data.get('Status_code',instance.status_code)
+        # instance.module = validated_data.get('Module',instance.module)
+        # instance.priority = validated_data.get('Priority',instance.priority)
+        # instance.company_name = validated_data.get('compay name',instance.company_name)
+        # instance.description = validated_data.get('description',instance.description)
+        # instance.status = validated_data.get('status',instance.status)
+        # instance.level = validated_data.get('level',instance.level)
+        # instance.level= validated_data.get('level',instance.level)
+        # instance.save()
     
     # def create(self, validated_data):
     #     x = super().create(validated_data)
@@ -85,17 +90,6 @@ class UserIssueSerializers(serializers.ModelSerializer):
     #         return instance
     #     else:
     #         return x
-
-
-
-# def create(self, validated_data):
-#     instance = Issue.objects.create(**validata) ed_dat # user=self.context['request'].user, 
-#     return instance
-
-# def update(self, instance, validated_data):
-#     x =super().update(instance, validated_data)
-#     # import ipdb;ipdb.set_trace()
-#     return x
 
 
 # class UserIssueSerializers(serializers.ModelSerializer):
@@ -111,4 +105,11 @@ class UserIssueSerializers(serializers.ModelSerializer):
 #         for isue in usermodel:
 #             User.objects.create(user = usermodel_instance,**isue)
 #         return usermodel_instance
-    
+
+
+    # user = serializers.PrimaryKeyRelatedField(read_only=True,default=serializers.CurrentUserDefault())
+    # issue_reporter= serializers.SerializerMethodField('_user')
+    # def _user(self,obj):
+    #     request = getattr(self.context,'request',None)
+    #     if request:
+    #         return request.user

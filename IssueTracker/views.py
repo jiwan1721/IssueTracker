@@ -1,35 +1,39 @@
-
-from email import message
-import imp
-from urllib import request
 from .serializers import IssueSerializers, UserIssueSerializers
 from .models import Issue
-
+from rest_framework.renderers import JSONRenderer,BrowsableAPIRenderer
 from django.contrib.auth import get_user_model
-User = get_user_model()
 from rest_framework import viewsets
 from . serializers import UserSeralizer
 from rest_framework.decorators import action
 from rest_framework import mixins
 from rest_framework.response import Response
-
-#to check user is authenticated or not
 from rest_framework.permissions import IsAuthenticated,IsAdminUser
-class IssueView(viewsets.ModelViewSet,mixins.CreateModelMixin):
+from django.db.models import Q
+from rest_framework.decorators import renderer_classes
+from rest_framework.decorators import api_view
+
+
+
+User = get_user_model()
+
+
+
+class IssueView(viewsets.ModelViewSet):
     queryset = Issue.objects.all()
     serializer_class = IssueSerializers
-
     permission_classes = [IsAuthenticated]or[IsAdminUser]
     def get_queryset(self):
         qs = super().get_queryset()
         qs = qs.filter(level=self.request.user.level)
         if self.request.user.level=='0':
-            raise self.permission_denied(self.request,message='yo do not have permission to do this action')
+            raise self.permission_denied(self.request,message='you forgot to change status')
         return qs
-        
+    def create(self, request, *args, **kwargs):
+        if request.user:
+            raise self.permission_denied(request,message="you do not have permission to this action ")
+        return super().create(request, *args, **kwargs)
+    
 
-
-from rest_framework.renderers import JSONRenderer,BrowsableAPIRenderer
 
 class UserView(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -41,9 +45,6 @@ class UserView(viewsets.ModelViewSet):
         return super().create(request, *args, **kwargs)
     def get_queryset(self):
         return super().get_queryset().filter(id=self.request.user.id)
-        # raise self.permission_denied(self.request,message='You do not have permission to do this action')   
-    def update(self, request, *args, **kwargs):
-        return super().update(request, *args, **kwargs)
 
 
 class AdminViewSet(viewsets.ModelViewSet):
@@ -51,13 +52,13 @@ class AdminViewSet(viewsets.ModelViewSet):
     serializer_class= UserSeralizer
     permission_classes = [IsAdminUser]
 
-from django.db.models import Q
+
 class UserZero(viewsets.ModelViewSet):
     queryset = Issue.objects.all()
     serializer_class=IssueSerializers
     permission_classes = [IsAuthenticated]or[IsAdminUser]
     def get_queryset(self): 
-        qs =super().get_queryset().filter(id = self.request.user.id)
+        qs =super().get_queryset().filter(user = self.request.user.id)    
         if self.request.user.level == '0':
             return qs
         raise self.permission_denied(self.request,message='You do not have permission to do this action')
@@ -65,13 +66,15 @@ class UserZero(viewsets.ModelViewSet):
         if self.request.user.level!='0':
             raise self.permission_denied(request,message="do not have permission")
         return super().create(request, *args, **kwargs)
-  
+    def get_serializer_context(self):
+        ctx = super().get_serializer_context()
+        ctx["user"] = self.request.user.id
+        return ctx
 
-from rest_framework.decorators import renderer_classes
-from rest_framework.decorators import api_view
-
-
-
+    # def update(self, id,request, *args, **kwargs):
+    #     if self.request.user.level==0:
+    #         raise self.permission_denied(request,message="you do not have permission to do this action",id=id)
+    #     return super().update(request, *args, **kwargs)
         
 
 class UserIssueView(viewsets.ModelViewSet):
@@ -84,9 +87,6 @@ class UserIssueView(viewsets.ModelViewSet):
 
 
 
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.renderers import JSONRenderer,BrowsableAPIRenderer
 
 
 

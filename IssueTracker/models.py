@@ -24,12 +24,9 @@ class User(AbstractUser):
     company = models.CharField(max_length=120)
     mobile_number = models.CharField(max_length=10, unique=True)
     level = models.CharField(choices=LEVEL,max_length=20,default=0)
-    # USERNAME_FIELD = 'email'
-    # REQUIRED_FIELDS = ['name']
 
     def __str__(self):
         return self.name
-        # return "user  name = %s,Company name = %s"%(self.name,self.company)
     
 
 
@@ -42,6 +39,7 @@ class Issue(BaseModel):
     STATUS = (
         ('pending','Pending'),
         ('solved','Solved'),
+        ('forward','Forward')
     )
     MODULE = (
         ('attendence','Attendence'),
@@ -61,7 +59,7 @@ class Issue(BaseModel):
     )
 
     level = models.CharField(max_length=20,choices=LEVEL,default=1)
-    # recipent = models.ForeignKey(User,related_name = 'issues',on_delete = models.CASCADE)
+    user = models.ForeignKey(User,related_name = 'issues',on_delete = models.CASCADE)
     status_code = models.CharField(choices=STATUS_CODE,max_length=30,default='other')
     module = models.CharField(choices = MODULE,max_length =30,default='other')
     priority = models.CharField(choices = PRIORITY,max_length=30,default='low')
@@ -78,54 +76,3 @@ class Issue(BaseModel):
         )
     def __str__(self):
         return " Issue priority:  %s, status code:  %s, " % (self.status,self.status_code)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# class Users(AbstractUser):
-#     GENDER_CHOICES = (
-#         ('MALE','Male'),
-#         ('Female','Female'),
-#     )
-#     USER_GROUPS = (
-#         ('NORMAL_USER','Normal_user'),
-#         ('LEVEL_ONE_SUPPORT','level_one_support'),
-#         ('LEVEL_TWO_SUPPORT','level_two_support'),
-#         ('LEVEL_THREE_SUPPORT','level_three_support'),
-#     )
-#     name = models.CharField(max_length=30,unique=True)
-#     age = models.IntegerField()
-#     gender = models.CharField(max_length=15,choices = GENDER_CHOICES,blank=True,null = True)
-
-
-
-
-
-
-
-
-
-
-
-
-# Create your models here.
-
-
-# class User(AbstractUser):
-#     username = models.CharField(max_length=56,blank=True,null=True,unique=True)
-#     email = models.EmailField('email address',unique=True)
-#     phone_no = models.CharField(max_length=10)
-#     USERNAME_FIELD = 'email'
-#     REQUIRED_FIELDS = ['username']
-#     def __str__(self):
-#         return "{}".format(self.email)
