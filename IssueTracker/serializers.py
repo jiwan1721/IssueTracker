@@ -1,3 +1,4 @@
+from ipaddress import v4_int_to_packed
 from urllib import request
 from rest_framework import serializers
 from traitlets import default
@@ -14,7 +15,7 @@ class IssueSerializers(serializers.ModelSerializer):
 
     class Meta:
         model = Issue
-        fields = ['id','status_code','module','priority','company_name','description','status']
+        fields = ['id','status_code','module','level','priority','company_name','description','status','upload_file']
     
         read_only_fields = ('is_active','is_staff')
 
@@ -22,22 +23,25 @@ class IssueSerializers(serializers.ModelSerializer):
         validated_data['level']='1'
         validated_data['status']='pending'
         validated_data['user_id']= self.context['user']
-            
         return super().create(validated_data)
     def update(self, instance, validated_data):
-        
         status = validated_data['status']
-        validated_data['level']='0'
         level=validated_data['level']
         if status == "solved":
-            level='0'
-        if status=='forward':
-            if level=='3':
-                raise serializers.ValidationError('level 3 can not forward')
-            elif level=='0':
+            # import ipdb;ipdb.set_trace()
+            validated_data['level']=0
+        elif status=='forward':
+            if level==3:
+                raise serializers.ValidationError('level 3 can not forward')    
+            elif level==0:
                 raise serializers.ValidationError('you do not have permission to do this action')
-            status='pending'
-            level=f'{int(level)+1}' if level <= '3' else level
+            validated_data['status']='pending'
+            validated_data['level']=f'{int(level)+1}' if level <= 3 else level
+        elif status=='pending':
+            if level==0:
+                validated_data['level']=1
+
+
         return super().update(instance, validated_data)
 
 
@@ -60,7 +64,12 @@ class UserIssueSerializers(serializers.ModelSerializer):
 
 
 
-
+       # if level==1:
+            #     level=2
+            # elif level=='2':
+            #     level=='3'
+            # else:
+            #     raise serializers.ValidationError('you can not forward')
 
 
 

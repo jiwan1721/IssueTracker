@@ -26,7 +26,7 @@ class IssueView(viewsets.ModelViewSet):
         qs = super().get_queryset()
         qs = qs.filter(level=self.request.user.level)
         if self.request.user.level=='0':
-            raise self.permission_denied(self.request,message='you forgot to change status')
+            raise self.permission_denied(self.request,message='you do not have permission to do this action')
         return qs
     def create(self, request, *args, **kwargs):
         if request.user:
@@ -49,8 +49,12 @@ class UserView(viewsets.ModelViewSet):
 
 class AdminViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
-    serializer_class= UserSeralizer
+    serializer_class= UserIssueSerializers
     permission_classes = [IsAdminUser]
+    def update(self, request, *args, **kwargs):
+        if self.request.user:
+            raise self.permission_denied(request,message="you do not have permission to do this action")
+        return super().update(request, *args, **kwargs)
 
 
 class UserZero(viewsets.ModelViewSet):
@@ -69,13 +73,8 @@ class UserZero(viewsets.ModelViewSet):
     def get_serializer_context(self):
         ctx = super().get_serializer_context()
         ctx["user"] = self.request.user.id
+        ctx['level']=self.request.user.level
         return ctx
-
-    # def update(self, id,request, *args, **kwargs):
-    #     if self.request.user.level==0:
-    #         raise self.permission_denied(request,message="you do not have permission to do this action",id=id)
-    #     return super().update(request, *args, **kwargs)
-        
 
 class UserIssueView(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -127,6 +126,11 @@ class UserIssueView(viewsets.ModelViewSet):
 #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+    # def update(self, id,request, *args, **kwargs):
+    #     if self.request.user.level==0:
+    #         raise self.permission_denied(request,message="you do not have permission to do this action",id=id)
+    #     return super().update(request, *args, **kwargs)
+        
 
 
 '''commented for re use'''
