@@ -1,3 +1,4 @@
+from distutils.command.upload import upload
 from statistics import mode
 from django.db import models
 from django.contrib.auth.models import AbstractUser
@@ -66,6 +67,7 @@ class Issue(BaseModel):
     company_name = models.CharField(max_length=100,blank=True)
     description = models.TextField(blank=True)
     status = models.CharField(choices=STATUS,max_length=20,default='pending')
+    upload_file=models.FileField(upload_to='issue_file/',blank=True,max_length=250)
     
     class Meta:
         permissions = (
