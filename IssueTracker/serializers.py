@@ -28,7 +28,6 @@ class IssueSerializers(serializers.ModelSerializer):
         status = validated_data['status']
         level=validated_data['level']
         if status == "solved":
-            # import ipdb;ipdb.set_trace()
             validated_data['level']=0
         elif status=='forward':
             if level==3:

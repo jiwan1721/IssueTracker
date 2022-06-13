@@ -25,6 +25,8 @@ class IssueView(viewsets.ModelViewSet):
     def get_queryset(self):
         qs = super().get_queryset()
         qs = qs.filter(level=self.request.user.level)
+        if self.request.user.is_staff:
+            return super().get_queryset()
         if self.request.user.level=='0':
             raise self.permission_denied(self.request,message='you do not have permission to do this action')
         return qs
@@ -36,6 +38,7 @@ class IssueView(viewsets.ModelViewSet):
 
 
 class UserView(viewsets.ModelViewSet):
+
     queryset = User.objects.all()
     serializer_class = UserSeralizer
     permission_classes = [IsAuthenticated]or[IsAdminUser]
@@ -44,6 +47,9 @@ class UserView(viewsets.ModelViewSet):
             raise self.permission_denied(request,message="you do not have permission to do this task")
         return super().create(request, *args, **kwargs)
     def get_queryset(self):
+        # import ipdb;ipdb.set_trace()    
+        if self.request.user.is_staff:
+            return super().get_queryset()
         return super().get_queryset().filter(id=self.request.user.id)
 
 
@@ -73,7 +79,6 @@ class UserZero(viewsets.ModelViewSet):
     def get_serializer_context(self):
         ctx = super().get_serializer_context()
         ctx["user"] = self.request.user.id
-        ctx['level']=self.request.user.level
         return ctx
 
 class UserIssueView(viewsets.ModelViewSet):
