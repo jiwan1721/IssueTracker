@@ -22,3 +22,4 @@ urlpatterns = [
     path('api-auth/',include('rest_framework.urls'))
 
 ]
+"""Generated token a64c9bcf7b2575d0539f97e85065738ebfc3ebaf for user admin"""

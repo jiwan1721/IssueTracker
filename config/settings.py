@@ -52,7 +52,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'django_extensions',
     'django_filters',
-    'corsheaders'
+    'corsheaders',
 ]
 AUTH_USER_MODEL = 'IssueTracker.User'
 # REST_FRAMEWORK = {
@@ -74,7 +74,10 @@ REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': [
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
-    ]
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',  # <-- And here
+    ],
 }
 
 MIDDLEWARE = [
@@ -88,6 +91,9 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
 ]
 CORS_ALLOW_ALL_ORIGINS = True
+# CORS_ORIGIN_WHITELIST = (
+#     'http://localhost:8080/',
+# )
 
 ROOT_URLCONF = 'config.urls'
 
