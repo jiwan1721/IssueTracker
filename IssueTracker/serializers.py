@@ -59,8 +59,22 @@ class UserIssueSerializers(serializers.ModelSerializer):
             User.objects.create(user = usermodel_instance,**isue)
         return usermodel_instance
 
+"""if we awnt to customize tokenobtainPair view and TokenObtainSlidingView"""
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.views import TokenObtainPairView
 
 
+class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls,user):
+        token = super().get_token(user)
+        """add custom claims"""
+        #token[name]=user.name
+        """........"""
+        return token
+
+class MyTokenObtainPairView(TokenObtainPairView):
+    serializer_class = MyTokenObtainPairSerializer
 
 
        # if level==1:

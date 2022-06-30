@@ -1,3 +1,4 @@
+from multiprocessing import reduction
 from .serializers import IssueSerializers, UserIssueSerializers
 from .models import Issue
 from rest_framework.renderers import JSONRenderer,BrowsableAPIRenderer
@@ -86,8 +87,13 @@ class UserIssueView(viewsets.ModelViewSet):
     serializer_class = UserIssueSerializers
 
 
-
-
+"""Creating token manually"""
+from rest_framework_simplejwt.tokens import RefreshToken
+def get_tokens_for_user(user):
+    return {
+        'refresh':str(refresh),
+        'access':str(refresh.access_token)
+    }
 
 
 
