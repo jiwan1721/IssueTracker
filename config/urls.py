@@ -20,12 +20,24 @@ from rest_framework_simplejwt.views import (
     TokenRefreshSlidingView,
 )
 
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
+from rest_framework_simplejwt.views import TokenBlacklistView
+from rest_framework_simplejwt.views import TokenVerifyView
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('',include('IssueTracker.urls')),
     path('api-auth/',include('rest_framework.urls')),
-    path('api/token/', TokenObtainSlidingView.as_view(), name='token_obtain'),
-    path('api/token/refresh/', TokenRefreshSlidingView.as_view(), name='token_refresh'),
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    # path('api/token/', TokenObtainSlidingView.as_view(), name='token_obtain'),
+    # path('api/token/refresh/', TokenRefreshSlidingView.as_view(), name='token_refresh'),
+    #this is alternative methode
+    path('api/token/blacklist/', TokenBlacklistView.as_view(), name='token_blacklist'),
+    path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
 
 ]
 """Generated token a64c9bcf7b2575d0539f97e85065738ebfc3ebaf for user admin"""

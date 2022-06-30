@@ -57,7 +57,9 @@ INSTALLED_APPS = [
     'django_extensions',
     'django_filters',
     'corsheaders',
+    'rest_framework_simplejwt',
     'rest_framework_jwt',
+    'rest_framework_simplejwt.token_blacklist', #for blacklist token --after this migrate
 ]
 AUTH_USER_MODEL = 'IssueTracker.User'
 # REST_FRAMEWORK = {
@@ -81,6 +83,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
         # 'rest_framework.authentication.TokenAuthentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework_simplejwt.authentication.JWTStatelessUserAuthentication',
     ]
 }
 
