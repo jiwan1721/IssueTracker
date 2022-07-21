@@ -33,9 +33,9 @@ class User(AbstractUser):
 
 class Issue(BaseModel):
     PRIORITY = (
-        ('high','HIGH'),
-        ('medium','MEDIUM'),
-        ('low','LOW')
+        (3,'HIGH'),
+        (2,'MEDIUM'),
+        (1,'LOW')
     )
     STATUS = (
         ('pending','Pending'),

@@ -1,12 +1,9 @@
-from ctypes import resize
-from http.client import responses
-from ipaddress import v4_int_to_packed
-from os import access
+from asyncore import read
+from dataclasses import field
 from urllib import request
 from rest_framework import serializers
-from traitlets import default
-from . models import LEVEL, User,Issue
-from rest_framework.permissions import IsAuthenticated,IsAdminUser
+from . models import User,Issue
+from django.core.exceptions import PermissionDenied
 
 class UserSeralizer(serializers.ModelSerializer):
     class Meta:
@@ -22,16 +19,37 @@ class IssueSerializers(serializers.ModelSerializer):
     
         read_only_fields = ('is_active','is_staff')
 
+    def get_fields(self):
+        fields=super().get_fields()
+
+        if self.context.get('level')=='0':
+            fields.pop('level')
+        return fields
+
+
+
     def create(self, validated_data):
         validated_data['level']='1'
+        validated_data['priority']='1'
         validated_data['status']='pending'
         validated_data['user_id']= self.context['user']
         return super().create(validated_data)
     def update(self, instance, validated_data):
         status = validated_data['status']
         level=validated_data['level']
+        priority= validated_data['priority']
+        module=validated_data['module']
+        module_ins= instance.module
+        status_code = validated_data['status_code']
+        status_code_ins= instance.status_code
+        company_name=validated_data['company_name']
+        company_name_ins=instance.company_name
+        if level!=0:
+            if module!=module_ins or status_code!=status_code_ins or company_name!=company_name_ins:
+                raise PermissionDenied()
         if status == "solved":
             validated_data['level']=0
+            validated_data['priority']=1
         elif status=='forward':
             if level==3:
                 raise serializers.ValidationError('level 3 can not forward')    
@@ -39,6 +57,7 @@ class IssueSerializers(serializers.ModelSerializer):
                 raise serializers.ValidationError('you do not have permission to do this action')
             validated_data['status']='pending'
             validated_data['level']=f'{int(level)+1}' if level <= 3 else level
+            validated_data['priority']= f'{int(priority)+1}' if priority <=3 else priority
         elif status=='pending':
             if level==0:
                 validated_data['level']=1
